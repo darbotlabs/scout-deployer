@@ -1,0 +1,17 @@
+# extensions.txt
+# One VS Code extension ID per line.
+# Lines starting with # are comments and are ignored by ScoutDeployer.ps1.
+# This file is deployed to C:\Windows\Temp\extensions.txt on the remote node
+# if VS Code is not present, for manual install via: code --install-extension @extensions.txt
+#
+# Cypherdyne / Scout cluster standard extensions
+
+# GitHub Copilot
+github.copilot
+github.copilot-chat
+
+# Productivity
+ms-vscode.powershell
+ms-vscode-remote.remote-ssh
+ms-vscode.live-server
+editorconfig.editorconfig

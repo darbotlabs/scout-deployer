@@ -1,0 +1,45 @@
+{
+  "name": "scout-deployer",
+  "version": "1.0.0",
+  "description": "Deploy Microsoft Scout (ClippyClaw) to Windows cluster nodes in the Cypherdyne tenant. Provisions binary, skills, connectors, MCP tools, permissions, memory, extensions, session history, and automations via PuTTY/SSH.",
+  "keywords": [
+    "microsoft-scout",
+    "clippyclaw",
+    "cypherdyne",
+    "scout-deployer",
+    "windows-cluster",
+    "ssh-deployment"
+  ],
+  "author": "dayour <dayour@timelarp.com>",
+  "license": "MIT",
+  "private": true,
+  "bin": {
+    "scout-deployer": "./bin/scout-deployer.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "os": ["win32"],
+  "files": [
+    "bin/scout-deployer.js",
+    "ScoutDeployer.ps1",
+    "ScoutDeployer.cmd",
+    "connectors/",
+    "mcp-manifests/",
+    "automations/",
+    "extensions.txt",
+    "README.md"
+  ],
+  "scripts": {
+    "start":   "node bin/scout-deployer.js",
+    "lint":    "node --check bin/scout-deployer.js",
+    "syntax":  "powershell -NoProfile -Command \"$e=$null;$null=[System.Management.Automation.Language.Parser]::ParseFile('ScoutDeployer.ps1',[ref]$null,[ref]$e);if($e.Count -eq 0){'SYNTAX OK'}else{$e|%{$_.Message}}\""
+  },
+  "config": {
+    "tenantId":    "6b104499-c49f-45dc-b3a2-df95efd6eeb4",
+    "tenantDomain": "cypherdyne.ai",
+    "appClientId": "cb08267c-55a2-4f0d-9c5a-58d90444b82d",
+    "licenseUser": "darbot@timelarp.com",
+    "scoutVersion": "0.22.333"
+  }
+}

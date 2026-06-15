@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SWE Scout Wiki - Architecture Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#06070d; --bg2:#0c0e18; --panel:#10131f; --panel2:#151a2b;
+  --ink:#e8ecf6; --muted:#9aa3bd; --line:#222a40;
+  --blue:#39B0FF; --indigo:#818EFF; --magenta:#CA5BCD; --rose:#F77181; --green:#5AD19A;
+  --nitro:#1f9dff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,#101a33 0%,var(--bg) 55%),var(--bg);
+  color:var(--ink);font:15px/1.6 "Segoe UI",system-ui,-apple-system,sans-serif}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+.mono,pre,code{font-family:"Cascadia Code",ui-monospace,Consolas,monospace}
+.wrap{display:grid;grid-template-columns:248px 1fr;max-width:1400px;margin:0 auto;min-height:100vh}
+nav{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:24px 16px;
+  border-right:1px solid var(--line);background:linear-gradient(180deg,#0a0d18,#070912)}
+nav h1{font-size:15px;letter-spacing:.5px;margin:0 0 4px;color:var(--ink)}
+nav .sub{color:var(--muted);font-size:11px;margin-bottom:18px}
+nav a{display:block;color:var(--muted);padding:6px 10px;border-radius:8px;font-size:13px}
+nav a:hover{background:#141a2c;color:var(--ink);text-decoration:none}
+nav .grp{color:#667;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin:16px 0 4px;padding-left:10px}
+main{padding:40px 48px;max-width:1100px}
+.hero{border:1px solid var(--line);border-radius:18px;padding:34px 36px;margin-bottom:34px;
+  background:
+   radial-gradient(600px 200px at 100% 0,#39b0ff14,transparent),
+   linear-gradient(180deg,#0e1322,#0a0d18);position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;border-radius:18px;padding:1px;
+  background:linear-gradient(120deg,var(--rose),var(--magenta) 48%,var(--indigo));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:.5}
+.hero h2{margin:0 0 8px;font-size:30px;background:linear-gradient(90deg,#fff,var(--indigo));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);max-width:760px;margin:.4em 0}
+.kpis{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
+.kpi{background:#0c1120;border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:120px}
+.kpi b{display:block;font-size:22px;color:var(--blue)}
+.kpi span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+section.block{margin:34px 0}
+h3.sec{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);
+  border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:18px}
+.lead{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.card h4{margin:0 0 6px;font-size:15px}
+.card p{color:var(--muted);margin:.3em 0;font-size:13.5px}
+.repo{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);
+  border-radius:16px;padding:20px 22px;margin:18px 0;position:relative}
+.repo:before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:3px;border-radius:3px;background:var(--accent)}
+.repo-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.repo-head h3{margin:0;font-size:20px}
+.repo-head h3 a{color:var(--ink)}
+.vis{font-size:9px;letter-spacing:1px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 6px;vertical-align:middle}
+.badge{font-size:11px;border:1px solid;border-radius:20px;padding:3px 12px;font-weight:600}
+.tagline{color:var(--muted);margin:10px 0}
+.meta-row{display:flex;gap:22px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:6px 0 12px}
+.meta-row b{color:var(--ink)}
+table.pkg{width:100%;border-collapse:collapse;margin:6px 0}
+table.pkg th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border-bottom:1px solid var(--line);padding:6px 8px}
+table.pkg td{padding:6px 8px;border-bottom:1px solid #1a2134;font-size:13px;vertical-align:top}
+table.pkg td.mono{color:var(--accent);white-space:nowrap}
+.extras{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:13px}
+details.tree{margin-top:12px}
+details.tree summary{cursor:pointer;color:var(--blue);font-size:13px}
+details.tree pre{background:#080b14;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:12px;color:#bcd}
+.mermaid{background:#080b14;border:1px solid var(--line);border-radius:14px;padding:20px;margin:8px 0}
+.flowtbl{width:100%;border-collapse:collapse;margin:10px 0}
+.flowtbl th,.flowtbl td{border:1px solid var(--line);padding:8px 12px;text-align:left;font-size:13px}
+.flowtbl th{background:#0d1322;color:var(--blue);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+.flowtbl td.mono{color:var(--indigo)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:14px 14px 14px 56px;margin:10px 0;
+  background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:12px}
+.steps li:before{content:counter(s);position:absolute;left:16px;top:14px;width:28px;height:28px;border-radius:8px;
+  display:grid;place-items:center;background:#0c1120;border:1px solid var(--blue);color:var(--blue);font-weight:700}
+.steps b{color:var(--ink)} .steps code{background:#0a0e1a;padding:1px 6px;border-radius:6px;color:var(--green);font-size:12.5px}
+.turn{border:1px solid var(--line);border-radius:10px;margin:8px 0;background:#0a0d18}
+.turn summary{cursor:pointer;padding:10px 14px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.turn .tn{color:var(--blue);font-weight:700} .turn .ts{color:#667;font-size:11px}
+.turn .snip{color:var(--muted);font-size:12.5px;overflow:hidden}
+.msg{padding:10px 14px;border-top:1px solid #161c2e}
+.msg .who{font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:4px}
+.msg.user .who{color:var(--green)} .msg.asst .who{color:var(--indigo)}
+.msg pre{white-space:pre-wrap;word-break:break-word;margin:0;font-size:12.5px;color:#cdd6ea}
+.toolbar{display:flex;gap:10px;margin:10px 0}
+.btn{background:#0d1322;border:1px solid var(--blue);color:var(--blue);border-radius:9px;padding:8px 14px;cursor:pointer;font-size:13px}
+.btn:hover{background:var(--blue);color:#03070f}
+.rawjson{max-height:420px;overflow:auto;background:#080b14;border:1px solid var(--line);border-radius:12px;padding:14px;font-size:11.5px;color:#9fb3d8;white-space:pre-wrap;word-break:break-word}
+footer{color:#566;border-top:1px solid var(--line);margin-top:40px;padding-top:18px;font-size:12px}
+@media(max-width:880px){.wrap{grid-template-columns:1fr}nav{position:static;height:auto}main{padding:24px}.grid2{grid-template-columns:1fr}}
+</style></head>
+<body>
+<div class="wrap">
+<nav>
+  <h1>SWE Scout Wiki</h1>
+  <div class="sub">Architecture Intelligence &middot; Sunday, June 14, 2026</div>
+  <a href="#overview">Overview</a>
+  <a href="#ai">What is Architecture Intelligence</a>
+  <a href="#map">Interconnection map</a>
+  <a href="#dataflow">Data &amp; control flow</a>
+  <a href="#identity">Identity &amp; auth (ClippyClaw)</a>
+  <div class="grp">Repositories</div>
+  <a href="#repo-scout-swe">scout-swe</a>
+  <a href="#repo-aether">aether</a>
+  <a href="#repo-weave">weave</a>
+  <a href="#repo-scout-sdk">scout-sdk</a>
+  <a href="#repo-scout-app">scout-app</a>
+  <a href="#repo-scout-cli">scout-cli</a>
+  <div class="grp">Provenance</div>
+  <a href="#deploy">Cypherdyne deployment</a>
+  <a href="#session">Full session history</a>
+</nav>
+<main>
+  <div class="hero">
+    <h2>Scout Architecture Intelligence</h2>
+    <p>How six repositories under <a href="https://github.com/dayour" target="_blank">github.com/dayour</a> compose into one coherent control plane for the <b>Microsoft Scout</b> fleet (Frontier v0.22.333) - born from the configuration and deployment of Scout to the <b>Cypherdyne</b> (timelarp) tenant.</p>
+    <div class="kpis">
+      <div class="kpi"><b>6</b><span>Repositories</span></div>
+      <div class="kpi"><b>3</b><span>Layer stack</span></div>
+      <div class="kpi"><b>16</b><span>/scout API routes</span></div>
+      <div class="kpi"><b>9</b><span>MCP tools</span></div>
+      <div class="kpi"><b>11</b><span>Graph scopes</span></div>
+      <div class="kpi"><b>17</b><span>Session turns</span></div>
+    </div>
+  </div>
+
+  <section class="block" id="overview">
+    <h3 class="sec">Overview</h3>
+    <p class="lead">Microsoft Scout is Microsoft's first "Autopilot" agent - a Frontier-tier desktop app that reads/writes files, runs shell, drives a Playwright browser, and queries M365 via Work IQ. Once Scout was unblocked on the Cypherdyne tenant, we built a full software-engineering platform around it: an object model, a 16-route control-plane API on the DarbotLM gateway (10.1.8.69), and six repositories that turn the running fleet into programmable, composable, observable infrastructure - what we call <b>Architecture Intelligence</b>.</p>
+    <div class="grid2">
+      <div class="card"><h4>The control plane</h4><p>scout-api exposes the fleet as <code>/scout/*</code> routes (health, info, catalog, fleet, nodes, policy, policy/render, sessions, tasks, manifest, schema), backed by <b>scloud-om</b> (Pydantic object model: Node/Agent/Policy/Session/Task/Fleet/Resource/Catalog).</p></div>
+      <div class="card"><h4>The stack shape</h4><p><b>scout-swe</b> (framework) runs on <b>aether</b> (runtime) and is composed by <b>weave</b> (orchestration). <b>scout-sdk</b> is the canonical client; <b>scout-app</b> exposes it over MCP; <b>scout-cli</b> drives it from a terminal.</p></div>
+    </div>
+  </section>
+
+  <section class="block" id="ai">
+    <h3 class="sec">What "Architecture Intelligence" means here</h3>
+    <p class="lead">Each repo answers a different question about the system, and together they let the architecture reason about itself:</p>
+    <table class="flowtbl">
+      <thead><tr><th>Question</th><th>Answered by</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td>What exists in the fleet?</td><td class="mono">scout-sdk / scloud-om</td><td>Typed catalog, nodes, fleet summary</td></tr>
+        <tr><td>How should it behave?</td><td class="mono">policy model</td><td>renderPolicy(linux/windows/macos) + diffPolicy</td></tr>
+        <tr><td>How do agents talk?</td><td class="mono">@*/a2a</td><td>Agent2Agent protocol types + JSON Schemas</td></tr>
+        <tr><td>Where does work run?</td><td class="mono">aether</td><td>SandboxExecutor + Scheduler + A2A transport</td></tr>
+        <tr><td>How is work composed?</td><td class="mono">weave</td><td>SwarmGraph DAG + Router (A2A/MCP/Scout)</td></tr>
+        <tr><td>How do tools reach it?</td><td class="mono">scout-app / scout-cli</td><td>MCP server+host / standalone CLI</td></tr>
+        <tr><td>How is it routed/secured?</td><td class="mono">apim/</td><td>Azure APIM policies for A2A + MCP routing</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="block" id="map">
+    <h3 class="sec">Interconnection map</h3>
+    <div class="mermaid">flowchart TB
+  subgraph TEN["Cypherdyne Tenant (timelarp 6b104499)"]
+    LIC["M365 Copilot license<br/>darbot@timelarp.com"]
+    POL["Intune ADMX: Darbot-Scout<br/>policyId 9d86acf7...<br/>Enabled tenant-wide"]
+    APPREG["ClippyClaw Entra app-reg<br/>client cb08267c (public, no secret)"]
+  end
+  subgraph FLEET["Microsoft Scout fleet (Frontier v0.22.333)"]
+    N68["node 10.1.8.68<br/>HKLM\\SOFTWARE\\Policies\\Scout<br/>AllowScoutFrontierAccess=1"]
+    N69["node 10.1.8.69<br/>DarbotLM gateway + proxy"]
+  end
+  POL -->|writes policy key| N68
+  LIC -->|signs in / Frontier gate clears| N68
+  APPREG -->|MSAL public client - 11 delegated Graph scopes| LIC
+  APPREG -.->|ms-clawpilot://auth/callback| N68
+  N69 -->|/scout API 16 routes| API["scout-api (gateway)"]
+  API --> OM["scloud-om object model"]
+
+  subgraph STACK["Architecture Intelligence stack (github.com/dayour)"]
+    SWE["scout-swe<br/>framework + SDK"]
+    AE["aether<br/>runtime"]
+    WV["weave<br/>orchestration"]
+    SDK["scout-sdk<br/>canonical SDK"]
+    APP["scout-app<br/>MCP app"]
+    CLI["scout-cli<br/>CLI"]
+  end
+  SWE -->|runs on| AE
+  WV -->|composes| SWE
+  WV -->|composes| AE
+  SDK -->|typed client| API
+  APP -->|MCP server/host| API
+  CLI -->|commands| API
+  SWE --> API
+  AE --> API
+  WV --> API
+</div>
+  </section>
+
+  <section class="block" id="dataflow">
+    <h3 class="sec">Data &amp; control flow</h3>
+    <table class="flowtbl">
+      <thead><tr><th>Layer</th><th>Repo</th><th>Depends on</th><th>Exposes</th></tr></thead>
+      <tbody>
+        <tr><td>Contract</td><td class="mono">scout-sdk</td><td>scout-api (OpenAPI)</td><td>ScoutClient (TS+Py), policy render, mock</td></tr>
+        <tr><td>Framework</td><td class="mono">scout-swe</td><td>scout-api, aether</td><td>SDK, A2A, runtime, CLI, APIM, automations</td></tr>
+        <tr><td>Runtime</td><td class="mono">aether</td><td>scout-api</td><td>ScoutRuntime, SandboxExecutor, Scheduler</td></tr>
+        <tr><td>Orchestration</td><td class="mono">weave</td><td>scout-swe, aether</td><td>SwarmGraph DAG + Router</td></tr>
+        <tr><td>Integration</td><td class="mono">scout-app</td><td>scout-api</td><td>MCP server (9 tools) + MCP host</td></tr>
+        <tr><td>Operator</td><td class="mono">scout-cli</td><td>scout-api</td><td>Terminal commands</td></tr>
+      </tbody>
+    </table>
+    <p class="lead">Every layer carries its own copy of the SDK + A2A types so it can be used standalone, but all converge on the same control-plane contract (<code>scout-api.yaml</code>) and the same managed-policy model.</p>
+  </section>
+
+  <section class="block" id="identity">
+    <h3 class="sec">Identity &amp; auth - ClippyClaw Entra app registration</h3>
+    <p class="lead">The control plane is only half the picture. Before any node can sign in to Cypherdyne and clear the Frontier gate, the desktop client (Scout / ClippyClaw) authenticates through a single Entra app registration. This is the <b>identity layer</b> of the architecture - incorporated here from the canonical record in <a href="file:///C:/Users/dayour/OneDrive%20-%20Microsoft/0core0/swe_clippyclaw_app_reg.html" target="_blank">swe_clippyclaw_app_reg.html</a>.</p>
+    <div class="grid2">
+      <div class="card"><h4>Registration facts</h4>
+        <table class="flowtbl">
+          <tr><td>Display name</td><td class="mono">ClippyClaw</td></tr>
+          <tr><td>Application (client) ID</td><td class="mono">cb08267c-55a2-4f0d-9c5a-58d90444b82d</td></tr>
+          <tr><td>Object ID</td><td class="mono">30c75d85-d3c0-4da4-9619-7ca8035d0166</td></tr>
+          <tr><td>Tenant (directory) ID</td><td class="mono">6b104499-c49f-45dc-b3a2-df95efd6eeb4</td></tr>
+          <tr><td>Tenant domain</td><td class="mono">cypherdyne.ai (timelarp.com)</td></tr>
+          <tr><td>Audience</td><td class="mono">AzureADMyOrg (single tenant)</td></tr>
+          <tr><td>Client type</td><td class="mono">Public / native - isFallbackPublicClient=true, no secret</td></tr>
+        </table>
+      </div>
+      <div class="card"><h4>Why it is shaped this way</h4>
+        <p><b>Public client, no secret</b> - a desktop app can't keep a secret; MSAL uses interactive + device-code + silent-refresh flows, zero credentials shipped.</p>
+        <p><b>Deep-link redirect, not localhost</b> - registers custom scheme <code>ms-clawpilot://</code>; Electron intercepts via second-instance (Win/Linux) or open-url (macOS). Satisfies SPACE/compliance (no localhost web reply URL).</p>
+        <p><b>Delegated only</b> - all Graph scopes act as the signed-in user; never application permissions. Source of truth: <code>electron/auth/msal-provider.ts</code> + <code>deep-link-loopback.ts</code> + <code>electron-builder.json5</code>.</p>
+      </div>
+    </div>
+    <table class="flowtbl">
+      <thead><tr><th>Public-client redirect URIs</th><th>11 delegated Graph scopes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="mono">ms-clawpilot://auth/callback<br>msauth.com.microsoft.clawpilot://auth<br>msauth.com.msauth.unsignedapp://auth&nbsp;(dev)</td>
+          <td class="mono">openid &middot; profile &middot; email &middot; offline_access &middot; User.Read<br>Mail.ReadWrite &middot; Mail.Send &middot; Calendars.ReadWrite<br>Files.ReadWrite &middot; Chat.ReadWrite &middot; People.Read</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="lead">How it fits Architecture Intelligence: this app-reg is the <b>front door</b>. MSAL acquires delegated Graph tokens which power Scout's Work IQ (mail/calendar/files/Teams/people); the same signed-in account holds the M365 Copilot license that satisfies the Frontier policy gate. Provisioning a new node therefore needs both - the policy key <i>and</i> a sign-in through this registration. The registration ships with an idempotent installer (<code>New-ClippyClawAppRegistration.ps1</code>, with <code>.sh</code> / <code>.cmd</code> variants) embedded in the app-reg wiki.</p>
+  </section>
+
+  <section class="block">
+    <h3 class="sec">Repositories</h3>
+    
+    <section class="repo" id="repo-scout-swe" style="--accent:#39B0FF">
+      <div class="repo-head">
+        <span class="badge" style="background:#39B0FF1a;color:#39B0FF;border-color:#39B0FF55">Framework + SDK layer</span>
+        <h3><a href="https://github.com/dayour/scout-swe" target="_blank">scout-swe</a> <span class="vis">PRIVATE</span></h3>
+      </div>
+      <p class="tagline">Software-engineering framework and SDK for the Scout control plane and the Microsoft Scout fleet.</p>
+      <div class="meta-row">
+        <span><b>Lang</b> TypeScript / Python</span>
+        <span><b>Size</b> 33.4 KB src</span>
+        <span><b>Pushed</b> 2026-06-09</span>
+      </div>
+      <table class="pkg"><thead><tr><th>Package</th><th>Description</th></tr></thead><tbody><tr><td class='mono'>@scout-swe/sdk</td><td>Typed TS client for the Scout API + policy helpers</td></tr><tr><td class='mono'>@scout-swe/a2a</td><td>Agent2Agent protocol types + JSON Schemas</td></tr><tr><td class='mono'>@scout-swe/runtime</td><td>Task/session execution, A2A transport, scheduler</td></tr><tr><td class='mono'>@scout-swe/cli</td><td>scout-swe command line</td></tr><tr><td class='mono'>scout_swe (Python)</td><td>httpx + pydantic bindings</td></tr></tbody></table>
+      <ul class="extras"><li>apim/ - OpenAPI + Azure APIM policies (A2A/MCP routing)</li><li>automations/ - scheduled Scout tasks</li><li>docs/ - Docusaurus site</li></ul>
+      <details class="tree"><summary>Key files</summary><pre>packages/{sdk,a2a,runtime,cli}/src/*
+apim/policies/{inbound,a2a-mcp-routing}.xml  apim/openapi/scout-api.yaml
+automations/scheduled/weekly-fleet-report.json
+python/scout_swe/{client,models}.py  docs/docs/{architecture,apim,a2a,runtime,policy}.md</pre></details>
+    </section>
+    <section class="repo" id="repo-aether" style="--accent:#5AD19A">
+      <div class="repo-head">
+        <span class="badge" style="background:#5AD19A1a;color:#5AD19A;border-color:#5AD19A55">Execution runtime</span>
+        <h3><a href="https://github.com/dayour/aether" target="_blank">aether</a> <span class="vis">PRIVATE</span></h3>
+      </div>
+      <p class="tagline">Lightweight agent execution runtime: sandboxed task/session execution, scheduler/heartbeat, A2A transport.</p>
+      <div class="meta-row">
+        <span><b>Lang</b> TypeScript</span>
+        <span><b>Size</b> 28.3 KB src</span>
+        <span><b>Pushed</b> 2026-06-09</span>
+      </div>
+      <table class="pkg"><thead><tr><th>Package</th><th>Description</th></tr></thead><tbody><tr><td class='mono'>@aether/runtime</td><td>ScoutRuntime, SandboxExecutor, Scheduler, A2A transport</td></tr><tr><td class='mono'>@aether/sdk</td><td>Typed Scout API client + policy helpers</td></tr><tr><td class='mono'>@aether/a2a</td><td>Agent2Agent protocol types + JSON Schemas</td></tr><tr><td class='mono'>@aether/cli</td><td>command line</td></tr></tbody></table>
+      <ul class="extras"><li>SandboxExecutor (allowShell/allowWrite/blockedEgressOrigins)</li><li>apim/, automations/, Docusaurus docs/</li></ul>
+      <details class="tree"><summary>Key files</summary><pre>packages/runtime/src/{runtime,sandbox,scheduler,transport}.ts
+packages/{sdk,a2a,cli}/src/*
+apim/policies/*.xml  docs/docs/{runtime,architecture,policy}.md</pre></details>
+    </section>
+    <section class="repo" id="repo-weave" style="--accent:#CA5BCD">
+      <div class="repo-head">
+        <span class="badge" style="background:#CA5BCD1a;color:#CA5BCD;border-color:#CA5BCD55">SWE-swarm orchestration</span>
+        <h3><a href="https://github.com/dayour/weave" target="_blank">weave</a> <span class="vis">PRIVATE</span></h3>
+      </div>
+      <p class="tagline">Orchestration/composition layer: an agent/tool DAG with full APIM routing for A2A + MCP, composing Scout and DLMCP resources.</p>
+      <div class="meta-row">
+        <span><b>Lang</b> TypeScript</span>
+        <span><b>Size</b> 30.2 KB src</span>
+        <span><b>Pushed</b> 2026-06-09</span>
+      </div>
+      <table class="pkg"><thead><tr><th>Package</th><th>Description</th></tr></thead><tbody><tr><td class='mono'>@weave/orchestrator</td><td>SwarmGraph (agent/tool DAG) + Router (A2A/MCP/Scout)</td></tr><tr><td class='mono'>@weave/sdk</td><td>Typed Scout API client + policy helpers</td></tr><tr><td class='mono'>@weave/a2a</td><td>Agent2Agent protocol types + JSON Schemas</td></tr><tr><td class='mono'>@weave/runtime</td><td>task/session execution, A2A transport, scheduler</td></tr><tr><td class='mono'>@weave/cli</td><td>command line</td></tr></tbody></table>
+      <ul class="extras"><li>apim/ A2A/MCP routing policies</li><li>automations/, Docusaurus docs/</li></ul>
+      <details class="tree"><summary>Key files</summary><pre>packages/orchestrator/src/{graph,router}.ts
+packages/{sdk,a2a,runtime,cli}/src/*
+apim/policies/*.xml  docs/docs/{orchestrator,architecture,apim}.md</pre></details>
+    </section>
+    <section class="repo" id="repo-scout-sdk" style="--accent:#818EFF">
+      <div class="repo-head">
+        <span class="badge" style="background:#818EFF1a;color:#818EFF;border-color:#818EFF55">Canonical SDK</span>
+        <h3><a href="https://github.com/dayour/scout-sdk" target="_blank">scout-sdk</a> <span class="vis">PRIVATE</span></h3>
+      </div>
+      <p class="tagline">The canonical TypeScript + Python SDK for the Scout control plane: retries, A2A, policy render, task helpers, built-in mock.</p>
+      <div class="meta-row">
+        <span><b>Lang</b> TypeScript / Python</span>
+        <span><b>Size</b> 47.4 KB src</span>
+        <span><b>Pushed</b> 2026-06-10</span>
+      </div>
+      <table class="pkg"><thead><tr><th>Package</th><th>Description</th></tr></thead><tbody><tr><td class='mono'>packages/sdk (TS)</td><td>ScoutClient, http(retry), a2a, policy, mock, types</td></tr><tr><td class='mono'>scout_sdk (Python)</td><td>sync ScoutClient + async AsyncScoutClient + models + policy</td></tr><tr><td class='mono'>openapi/scout-api.yaml</td><td>OpenAPI 3 contract</td></tr></tbody></table>
+      <ul class="extras"><li>Typed errors: ScoutApiError / ScoutTimeoutError / ScoutNetworkError</li><li>renderPolicy(linux/windows/macos) + parsePolicy + diffPolicy</li><li>createMockFetch() - run with no gateway</li></ul>
+      <details class="tree"><summary>Key files</summary><pre>packages/sdk/src/{client,http,a2a,a2a-client,policy,errors,mock,types}.ts
+python/scout_sdk/{client,aio,models,policy,errors}.py
+openapi/scout-api.yaml
+docs/ (Docusaurus)  examples/{basic.ts,example.py}</pre></details>
+    </section>
+    <section class="repo" id="repo-scout-app" style="--accent:#F77181">
+      <div class="repo-head">
+        <span class="badge" style="background:#F771811a;color:#F77181;border-color:#F7718155">MCP application</span>
+        <h3><a href="https://github.com/dayour/scout-app" target="_blank">scout-app</a> <span class="vis">PRIVATE</span></h3>
+      </div>
+      <p class="tagline">An MCP application: both an MCP server (Scout as tools/resources/prompts) and an MCP host (consuming other MCP servers).</p>
+      <div class="meta-row">
+        <span><b>Lang</b> TypeScript</span>
+        <span><b>Size</b> 15.9 KB src</span>
+        <span><b>Pushed</b> 2026-06-09</span>
+      </div>
+      <table class="pkg"><thead><tr><th>Package</th><th>Description</th></tr></thead><tbody><tr><td class='mono'>@scout-app/mcp-server</td><td>9 Scout tools, 2 resources, scout-triage prompt (stdio + HTTP)</td></tr><tr><td class='mono'>@scout-app/mcp-host</td><td>MCP host/client to aggregate other MCP servers</td></tr><tr><td class='mono'>@scout-app/sdk</td><td>self-contained Scout control-plane client</td></tr><tr><td class='mono'>@scout-app/app</td><td>scout-app binary</td></tr></tbody></table>
+      <ul class="extras"><li>Resources: scout://catalog, scout://nodes</li><li>Transports: stdio + Streamable HTTP (:8970/mcp)</li><li>Registers with Claude Desktop / VS Code / Microsoft Scout</li></ul>
+      <details class="tree"><summary>Key files</summary><pre>packages/mcp-server/src/{server,tools,transports}.ts
+packages/mcp-host/src/host.ts
+packages/app/src/index.ts  packages/sdk/src/client.ts
+docs/docs/{mcp-tools,host,transports,registering}.md</pre></details>
+    </section>
+    <section class="repo" id="repo-scout-cli" style="--accent:#F77181">
+      <div class="repo-head">
+        <span class="badge" style="background:#F771811a;color:#F77181;border-color:#F7718155">Standalone CLI</span>
+        <h3><a href="https://github.com/dayour/scout-cli" target="_blank">scout-cli</a> <span class="vis">PRIVATE</span></h3>
+      </div>
+      <p class="tagline">Zero-runtime-dependency command line for the Scout control plane and the Microsoft Scout fleet.</p>
+      <div class="meta-row">
+        <span><b>Lang</b> TypeScript</span>
+        <span><b>Size</b> 7.5 KB src</span>
+        <span><b>Pushed</b> 2026-06-09</span>
+      </div>
+      <table class="pkg"><thead><tr><th>Package</th><th>Description</th></tr></thead><tbody><tr><td class='mono'>scout health / info</td><td>control-plane health / surface description</td></tr><tr><td class='mono'>scout nodes / node &lt;id&gt;</td><td>list / show Microsoft Scout fleet nodes</td></tr><tr><td class='mono'>scout catalog / agents</td><td>DLMCP resource counts / control agents</td></tr><tr><td class='mono'>scout policy --platform</td><td>baseline policy, optionally rendered</td></tr><tr><td class='mono'>scout dispatch / tasks / get-task</td><td>dispatch + inspect tasks</td></tr></tbody></table>
+      <ul class="extras"><li>--gateway URL (or SCOUT_GATEWAY, default http://localhost:9000)</li><li>--json for raw output</li></ul>
+      <details class="tree"><summary>Key files</summary><pre>src/{index,client,format,types}.ts
+test/client.test.ts  README.md</pre></details>
+    </section>
+  </section>
+
+  <section class="block" id="deploy">
+    <h3 class="sec">Provenance - Cypherdyne deployment</h3>
+    <p class="lead">The platform originated from configuring and deploying Scout to the Cypherdyne (timelarp) tenant on 2026-06-07. Tenant <code>6b104499-c49f-45dc-b3a2-df95efd6eeb4</code>; work account <code>darbot@timelarp.com</code> (holds the M365 Copilot license).</p>
+    <ol class="steps">
+      <li><b>Authenticate</b> Azure + Entra to <code>darbot@timelarp.com</code> (sub MSFT_funded <code>88dc9c38...</code>).</li>
+      <li><b>Hit the Frontier gate</b> - "Scout hasn't been set up for your organization." Two-layer gate: org policy + licensed account.</li>
+      <li><b>Tenant policy</b> - Intune ADMX <b>Darbot-Scout</b> (policyId <code>9d86acf7-a2d3-422c-ad3c-2966a5578647</code>) confirmed Enabled tenant-wide.</li>
+      <li><b>Per-machine key</b> - over SSH on <code>10.1.8.68</code> set <code>HKLM\SOFTWARE\Policies\Scout\AllowScoutFrontierAccess = 1</code> (exactly what the ADMX writes).</li>
+      <li><b>Relaunch + sign in</b> - waitlist cleared; validated genuine Microsoft-signed binary <b>v0.22.333.0</b>, GitHub Copilot identity <code>login=dayour, staff=true</code>.</li>
+      <li><b>Linux policy parity</b> - reverse-engineered loader <code>RF(win32) ?? VF(darwin) ?? HF(linux) ?? loadFromFile()</code>; Linux reads <b>camelCase</b> <code>/etc/clawpilot/policy.json</code>.</li>
+      <li><b>Control plane</b> - on <code>10.1.8.69</code> built scloud-om + scout-api (16 routes) + scout-cli into the DarbotLM gateway/proxy/router (commit <code>84d67d3</code>).</li>
+      <li><b>Platform repos</b> - created scout-swe, aether, weave, then scout-app, scout-cli, and the canonical scout-sdk.</li>
+    </ol>
+    <table class="flowtbl">
+      <thead><tr><th>Platform</th><th>Policy source</th><th>Key casing</th></tr></thead>
+      <tbody>
+        <tr><td>Windows</td><td class="mono">HKLM\SOFTWARE\Policies\Scout</td><td>PascalCase (AllowScoutFrontierAccess)</td></tr>
+        <tr><td>macOS</td><td class="mono">/Library/Managed Preferences/com.microsoft.clawpilot.plist</td><td>PascalCase</td></tr>
+        <tr><td>Linux</td><td class="mono">/etc/clawpilot/policy.json</td><td>camelCase (allowScoutFrontierAccess)</td></tr>
+        <tr><td>No-root fallback</td><td class="mono">&lt;userData&gt;/tenant-policy.json</td><td>camelCase</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="block" id="session">
+    <h3 class="sec">Full session history</h3>
+    <p class="lead">Complete transcript of session <code>846367d7-e504-4081-bb3e-0175f7b46ef0</code> (17 turns) - the configuration + deployment + build work, embedded verbatim.</p>
+    <div class="toolbar">
+      <button class="btn" onclick="copyJson()">Copy raw JSON</button>
+      <button class="btn" onclick="dl()">Download .json</button>
+      <button class="btn" onclick="toggleAll()">Expand / collapse all</button>
+    </div>
+    
+    <details class="turn"><summary><span class="tn">Turn 0</span> <span class="ts">2026-06-08T01:00:12.186Z</span> <span class="snip">az account list and az auth status to seee if you&#x27;re logged into darbot@timelarp.com tenan</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>az account list and az auth status to seee if you&#x27;re logged into darbot@timelarp.com tenant for azure and entra</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>Switched. Both Azure and Entra now resolve to **darbot@timelarp.com**.
+
+| Item | Value |
+|------|-------|
+| **Active subscription** | MSFT_funded (`88dc9c38-361e-4516-9072-ae9504620c0f`) |
+| **Tenant** | `6b104499-c49f-45dc-b3a2-df95efd6eeb4` (timelarp) |
+| **Azure user** | darbot@timelarp.com |
+| **Entra signed-in user** | Darbot — darbot@timelarp.com (`c402dc81-...`) |
+
+You&#x27;re fully active on the timelarp tenant for both Azure ARM and Entra (Microsoft Graph) operations.</pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 1</span> <span class="ts">2026-06-08T01:50:51.617Z</span> <span class="snip">Researching: microsoft documentation for &quot;frontier&quot; program and &quot;microsoft scout&quot; and anal</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>Researching: microsoft documentation for &quot;frontier&quot; program and &quot;microsoft scout&quot; and analyze dayour/.copilot session data to see where we left off</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>Report saved. Here is the concise summary.
+
+**File:** `C:\Users\dayour\.copilot\session-state\846367d7-e504-4081-bb3e-0175f7b46ef0\research\microsoft-documentation-for-frontier-program-and-m.md` (33 KB, 34 footnotes, 4 Mermaid diagrams)
+
+## Key findings
+
+**1. Frontier program** — Microsoft 365 Copilot&#x27;s opt-in early-access tier (Frontier -&gt; Standard -&gt; Deferred release model). Admin-enabled in M365 admin center (Copilot &gt; Settings &gt; Copilot Frontier); requires an M365 Copilot license. First named Mar 25, 2025; now delivers Cowork, PowerPoint Agent Mode, Claude-in-chat, and Scout. Distinct from the &quot;Frontier Firm&quot; concept and the generic &quot;frontier model&quot; term.
+
+**2. Microsoft Scout** — Microsoft&#x27;s first &quot;Autopilot&quot; agent, a **desktop app** (Win/macOS) announced **June 2, 2026 at Build 2026**. Reads/writes files, runs shell, drives a Playwright browser, queries M365 via Work IQ. **Frontier-only**, behind 3 gates: Frontier enrollment + Intune policy (`AllowScoutFrontierAccess`) + admin attestation, plus a **GitHub Copilot license**.
+
+**3. The bridge (most important):** Scout is built on the **MIT open-source `OpenClaw`** + **Work IQ**; its codename is **&quot;Clawpilot&quot;** (MDM domain `com.microsoft.clawpilot`). Your local **&quot;ClippyClaw&quot; v0.22.327** runs the *same stack* — `~/.copilot` plugin layout, a `workiq` MCP server, `agents/`+`skills/` model. Your environment is a Scout/Clawpilot-family build (high-confidence inference; ClippyClaw isn&#x27;t public).
+
+**4. Where we left off** (last activity ~2026-06-08 00:55 UTC, 3 parallel sessions):
+- **Most recent:** Copilot Studio **&quot;Coral Schema&quot; API audit** — semantic-ID tagging (`cs:dv:v9:bots:get`), `coral-ui-audit.html` on `localhost:8791`; cut off mid-search on the publish endpoint group.
+- **Tileslide** Tauri slide app rendering slides via headless Edge.
+- **ClippyClaw** `cargo build --release` (new `clippyclaw_tauri.exe` launched).
+
+NOTE: Your session transcripts are AES-encrypted (`clippyclaw-sessions/*.json`); the recap was reconstructed from plaintext audit logs. Also: **M365 is disconnected** in ClippyClaw, which disables Calendar/Mail/Teams/WorkIQ — likely worth reconnecting before resuming.</pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 2</span> <span class="ts">2026-06-08T01:53:00.859Z</span> <span class="snip">can you please check the config for cypherdyne tenant? Ask your admin to enable Microsoft </span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>can you please check the config for cypherdyne tenant? Ask your admin to enable Microsoft Scout
+Microsoft Scout hasn&#x27;t been set up for your organization yet. Once your admin has enabled it, come back here to get started.</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre><em>(no recorded assistant response / continued in next turn)</em></pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 3</span> <span class="ts">2026-06-08T02:06:19.293Z</span> <span class="snip">darbot@timelarp.com has an m365 license</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>darbot@timelarp.com has an m365 license</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre><em>(no recorded assistant response / continued in next turn)</em></pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 4</span> <span class="ts">2026-06-08T02:06:49.850Z</span> <span class="snip">https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/PolicySummaryReportBlad</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/PolicySummaryReportBlade/policyId/9d86acf7-a2d3-422c-ad3c-2966a5578647/showReporting~/true/policyType~/71/isAssigned~/true/policyJourneyState~/7/policyName/Darbot-Scout</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre><em>(no recorded assistant response / continued in next turn)</em></pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 5</span> <span class="ts">2026-06-08T02:13:43.723Z</span> <span class="snip">&lt;skill-context name=&quot;darbot-browser-capture&quot;&gt;
+Base directory for this skill: C:\Users\dayo</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>&lt;skill-context name=&quot;darbot-browser-capture&quot;&gt;
+Base directory for this skill: C:\Users\dayour\.copilot\skills\darbot-browser-capture
+
+# darbot-browser-capture
+
+Capture clean, content-only screenshots with the `darbot-browser` tools while
+bound to a real Edge profile / appdata, and emit a machine-readable step+schema
+for every action.
+
+## Communication standard
+
+NO EMOJIS. Never use emoji characters, decorative Unicode symbols, or markdown
+emoji shortcodes in any output, file name, alt text, caption, commit, or schema
+value. Use plain text labels instead: `WARNING:`, `NOTE:`, `OK:`, `BLOCKED:`.
+
+## When to use (vs copilotbrowser-capture)
+
+- The session must run as a specific signed-in account/profile (appdata bound),
+  e.g. `darbot@timelarp.com` on the Cypherdyne tenant.
+- You need to preview a local `file://` HTML artifact (copilotbrowser BLOCKS
+  `file://`; darbot-browser ALLOWS it).
+- Everything else about privacy and step+schema matches copilotbrowser-capture.
+
+## Profile / appdata connect (darbot@timelarp.com, Cypherdyne)
+
+1. Use `browser_list_profiles` to enumerate the Edge profiles available in the
+   configured user-data directory.
+2. Use `browser_switch_profile` to select the profile that is already signed in
+   as `darbot@timelarp.com` (Cypherdyne tenant). This reuses the existing
+   appdata session so no interactive sign-in is needed.
+3. If saved Darbot session state exists, `browser_switch_profile` (session
+   restore) can re-open cookies/localStorage/URL for that account.
+4. Verify with `browser_snapshot` that the destination renders as the intended
+   account before capturing. Do not capture the account picker or sign-in.
+
+NOTE: Cypherdyne tenant id 6b104499-c49f-45dc-b3a2-df95efd6eeb4;
+timelarp.com maps to cypherdyne.ai. Do NOT print the UPN, tenant name, or ids
+into any captured image.
+
+## Privacy-conscious capture rules
+
+1. `browser_take_screenshot` captures the page render region only, not the OS
+   window frame, address bar, tab strip, or bookmarks. Prefer it over any
+   OS-level full-window grab.
+2. For a single panel, pass `element` + `ref` from a prior `browser_snapshot`
+   so the shot is cropped to that element and excludes chrome.
+3. Never capture the address bar. If a URL, tenant, UPN, or token appears in
+   page content, crop it out with an element shot or reframe first.
+4. Do not capture sign-in / account-picker screens. Capture only the
+   post-auth destination content.
+5. Keep full-page captures off unless the entire scroll height is required.
+6. Descriptive, non-sensitive file names only (`01-overview.png`).
+
+## Output location
+
+darbot-browser writes screenshots under:
+`C:\Users\dayour\AppData\Local\Temp\darbot-browser-mcp-output\&lt;timestamp&gt;\`
+
+Copy the chosen images into the artifact&#x27;s dedicated shots directory before
+embedding them as base64.
+
+## Standard capture loop
+
+1. `browser_list_profiles` then `browser_switch_profile` to bind the account.
+2. `browser_navigate` to the destination URL (or a `file://` local artifact).
+3. `browser_snapshot` to get refs.
+4. `browser_take_screenshot` with `element` + `ref` (preferred) or viewport.
+5. Copy from the Temp output dir into the shots directory.
+
+## Step + schema convention
+
+Each step is one JSON object; the collection is the automation spec and the
+screenshots are the runbook.
+
+```json
+{
+  &quot;step&quot;: 1,
+  &quot;title&quot;: &quot;Bind Cypherdyne profile&quot;,
+  &quot;tool&quot;: &quot;browser_switch_profile&quot;,
+  &quot;args&quot;: { &quot;name&quot;: &quot;Profile signed in as the Cypherdyne account&quot; },
+  &quot;screenshot&quot;: null,
+  &quot;notes&quot;: &quot;Reuses appdata session. No interactive sign-in, no credential capture.&quot;
+}
+```
+
+```json
+{
+  &quot;step&quot;: 2,
+  &quot;title&quot;: &quot;Preview local wiki artifact&quot;,
+  &quot;tool&quot;: &quot;browser_navigate&quot;,
+  &quot;args&quot;: { &quot;url&quot;: &quot;file:///C:/Users/dayour/OneDrive%20-%20Microsoft/0core0/swe_clippyclaw_app_reg.html&quot; },
+  &quot;screenshot&quot;: null,
+  &quot;notes&quot;: &quot;file:// allowed in darbot-browser only.&quot;
+}
+```
+
+## Output checklist
+
+- [ ] Bound to the intended signed-in profile before any capture.
+- [ ] No address bar, tab strip, or window frame in any image.
+- [ ] No account UPN, tenant name, OTP, or token visible.
+- [ ] Element-scoped shots used where a single panel is the subject.
+- [ ] Images copied out of the Temp output dir into the shots directory.
+- [ ] Each step recorded as a `tool + args` JSON object.
+- [ ] No emojis in any caption, alt text, file name, or schema value.
+
+## Worked example
+
+This skill&#x27;s profile bind (darbot@timelarp.com, Cypherdyne) and `file://`
+preview support were used to build and visually verify the ClippyClaw Entra
+app-registration wiki at
+`C:\Users\dayour\OneDrive - Microsoft\0core0\swe_clippyclaw_app_reg.html`
+(see the sibling `README.md`). The captured panels back the flip cards in that
+single-file artifact.
+
+&lt;/skill-context&gt;</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre><em>(no recorded assistant response / continued in next turn)</em></pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 6</span> <span class="ts">2026-06-08T02:23:01.101Z</span> <span class="snip">access granted, instructions were unclear for  that step. Pleach check intune settings now</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>access granted, instructions were unclear for  that step. Pleach check intune settings now</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre><em>(no recorded assistant response / continued in next turn)</em></pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 7</span> <span class="ts">2026-06-08T02:24:00.871Z</span> <span class="snip">ssh darbot@10.1.8.68 and set the value on that machine</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>ssh darbot@10.1.8.68 and set the value on that machine</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>Done. The registry write succeeded on **10.1.8.68** (`smax\darbot`) and is verified.
+
+## Result
+
+| Item | Value |
+|---|---|
+| Host | `10.1.8.68` (`smax\darbot`, via SSH key auth) |
+| Key | `HKLM\SOFTWARE\Policies\Scout` |
+| Value | `AllowScoutFrontierAccess` = **REG_DWORD 0x1** |
+| Before | key absent |
+| After | verified present and = 1 |
+
+This is exactly what the Cypherdyne &quot;Darbot-Scout&quot; ADMX policy would have written — and that policy is confirmed **Enabled** tenant-side, so the local key now matches the intended org config.
+
+## Next steps (on 10.1.8.68)
+1. **Relaunch Scout/Clawpilot** there — Scout reads this policy key at startup, so the running instance won&#x27;t pick it up until restarted. The &quot;hasn&#x27;t been set up for your organization&quot; waitlist screen should clear.
+2. **Sign in** with `darbot@timelarp.com` (Cypherdyne — holds the M365 Copilot license) plus the **GitHub Copilot Business/Enterprise** seat for token billing.
+
+Want me to verify Scout/Clawpilot is installed on that box and check whether it&#x27;s currently running (so you know it needs a restart)?</pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 8</span> <span class="ts">2026-06-08T02:25:51.979Z</span> <span class="snip">you scout is also installed on windows on there, try launch and connect</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>you scout is also installed on windows on there, try launch and connect</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre><em>(no recorded assistant response / continued in next turn)</em></pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 9</span> <span class="ts">2026-06-08T02:25:52.127Z</span> <span class="snip">It worked!</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>It worked!</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre><em>(no recorded assistant response / continued in next turn)</em></pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 10</span> <span class="ts">2026-06-08T02:26:31.218Z</span> <span class="snip">(I had to reinstall scout)</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>(I had to reinstall scout)</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre><em>(no recorded assistant response / continued in next turn)</em></pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 11</span> <span class="ts">2026-06-08T02:37:08.311Z</span> <span class="snip">please validate it&#x27;s the correct scout</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>please validate it&#x27;s the correct scout</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>## Validation verdict: YES — it&#x27;s the correct, genuine Microsoft Scout
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| **Authentic Microsoft binary** | PASS | `Microsoft Scout.exe`, Authenticode **Status: Valid**, **Signer: CN=Microsoft Corporation, O=Microsoft Corporation, Redmond** |
+| **Correct product/version** | PASS | Product &quot;Microsoft Scout&quot;, **v0.22.333.0** — the current Frontier release; build dated 2026-06-02 (Scout&#x27;s launch day) |
+| **Official install path** | PASS | `C:\Users\darbot\AppData\Local\Programs\Microsoft Scout\` (per-user), separate from the unsigned ClippyClaw wrapper |
+| **Running** | PASS | 4 Scout processes live on interactive RDP **session 2** |
+| **Frontier gate** | PASS | `HKLM\SOFTWARE\Policies\Scout\AllowScoutFrontierAccess = 1` |
+| **GitHub Copilot identity (token billing)** | PASS | `login = dayour`, `staff = true` |
+| **M365 work account / Cypherdyne tenant** | Not readable from disk | Stored **encrypted** (`m-onedrive-state.json` etc. carry the `MSE` AES header; MSAL/WAM token cache is DPAPI-encrypted) |
+
+**Conclusion:** This is the real, Microsoft-signed Microsoft Scout (Frontier), current version, Frontier-enabled, running, with the GitHub Copilot side signed in as `dayour`. It is distinct from the unsigned ClippyClaw build also on the box.
+
+NOTE: The one item I can&#x27;t read is which M365 work account Scout is signed into — and that&#x27;s by design (it&#x27;s encrypted at rest, which is the correct security posture). Since you confirmed it got past the &quot;not set up for your organization&quot; waitlist after reinstall, it is connected. To eyeball-confirm the tenant: open Scout&#x27;s account/profile menu — it should show **darbot@timelarp.com (Cypherdyne)**, which holds the M365 Copilot license that satisfies Frontier.
+
+Want me to confirm the signed-in work account a different way (e.g., check the WAM/Office identity registry for the Cypherdyne account on that box)?</pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 12</span> <span class="ts">2026-06-08T04:49:17.501Z</span> <span class="snip">great! can you create a policy for scout to be deployed to linux without requiring domain </span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>great! can you create a policy for scout to be deployed to linux without requiring domain management following the same pattern?</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>Done. I reverse-engineered the actual Scout 0.22.333 binary (not guesswork) and built a Linux policy that follows the exact same managed-policy pattern as Windows/macOS, with no MDM/domain join.
+
+## Deliverable
+`...\session-state\846367d7-...\files\scout-linux-policy\`
+- **`policy.json`** — the managed policy (Frontier enabled, governance permissive)
+- **`install-scout-policy.sh`** — self-elevating installer (writes `/etc/clawpilot/policy.json`)
+- **`README.md`** — provenance, schema, both deploy options
+
+## The verified mechanism
+Scout&#x27;s loader resolves: `RF(win32) ?? VF(darwin) ?? HF(linux) ?? loadFromFile()`.
+
+| Platform | Source | Keys |
+|---|---|---|
+| Windows | `HKLM\SOFTWARE\Policies\Scout` | PascalCase |
+| macOS | `/Library/Managed Preferences/com.microsoft.clawpilot.plist` | PascalCase |
+| **Linux** | **`/etc/clawpilot/policy.json`** | **camelCase** |
+| No-root fallback (any OS) | `&lt;userData&gt;/tenant-policy.json` | camelCase |
+
+**Critical correction:** Linux parses the whole file through the `NF` normalizer, which reads **camelCase** keys. The public-source inference (Chromium `/etc/opt/microsoft/scout/...` path with PascalCase `AllowScoutFrontierAccess`) is **wrong** for the real app — those keys would be silently ignored.
+
+The policy.json:
+```json
+{ &quot;version&quot;: 1, &quot;allowScoutFrontierAccess&quot;: true, ... }
+```
+
+## Deploy (no domain mgmt)
+```bash
+sudo install -d -m 0755 /etc/clawpilot
+sudo install -m 0644 policy.json /etc/clawpilot/policy.json
+```
+Scout reads it at launch and every ~15 min, logging `Loaded managed policy: ...` (`managed=true`). NOTE: this clears the waitlist gate only — the M365 Copilot license + GitHub Copilot seat are still required to sign in.
+
+Want me to push this to a specific Linux host in your fleet via SSH? Tell me the host and I&#x27;ll deploy + verify (read-only check first).</pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 13</span> <span class="ts">2026-06-08T14:25:45.681Z</span> <span class="snip">ssh darbot@10.1.8.69 and add a tab the DarbotLM Portal and add it to the gateway, proxy, r</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>ssh darbot@10.1.8.69 and add a tab the DarbotLM Portal and add it to the gateway, proxy, runtime, router for scout and let&#x27;s create an extensive scout-api and scout-cli and scloud-om (for object model) as you deploy and configure</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>Scout integration is built, validated, committed, and staged for deploy on **10.1.8.69**. I did not restart or rebuild anything (per your request).
+
+## What was added (commit `84d67d3` on `main`, repo `/mnt/fschia/darbot/darbotlm`)
+
+| Surface | Delivered |
+|---|---|
+| **scloud-om** | `scloud/om.py` (Pydantic v2: ScoutNode/Agent/Policy/Session/Task/Fleet/Resource/Catalog + manifest projection + per-platform policy render) and `manifests/schemas/scout-object-model.schema.json` |
+| **scout-api** | `gateway/routers/scout.py` + `gateway/service_modules/scout.py` — **16 routes** under `/scout` (health, info, catalog, fleet, nodes, policy, policy/render, sessions, tasks, manifest, schema) |
+| **scout-cli** | `scloud/cli.py` (`python -m scloud info|nodes|catalog|policy|dispatch ...`) |
+| **gateway + router** | registered `scout.router` in `gateway/main.py` |
+| **proxy** | explicit `location /scout/` in `nginx-proxy-redirect.conf` |
+| **runtime + portal tab** | `manifests/services/ai-services/scout.json` with an adaptive-tile `view` (the tab) |
+| **agent (fleet)** | `manifests/dlmcp/agents/scout.json` (Microsoft Scout / Clawpilot fleet) |
+| packaging / node / docs | `Dockerfile` `COPY scloud`, `nodes/scout-fleet.md`, `docs/darbot-scout.md` |
+
+**Scope honored:** models both the Microsoft Scout fleet (10.1.8.68) **and** a native control plane; `/scout/catalog` aggregates all DLMCP services/agents/connectors/skills/tools.
+
+## Validation (all green)
+- Both manifests **schema-valid** against `dlm-manifest.schema.json`; all JSON lints.
+- All Python compiles; **OM renders** the Linux/Windows policy correctly.
+- Router **imports inside the running container** and registers all 16 `/scout/*` routes.
+- Fresh `ManifestRegistry()` resolves scout **service + agent + portal-tab view = present**.
+
+## Deploy (you run these — I did not restart)
+The gateway code is baked into the image, so this needs a **rebuild**, not just a restart:
+```bash
+cd /mnt/fschia/darbot/darbotlm
+docker compose up -d --build
+```
+NOTE: `sudo systemctl restart darbotlm` uses `compose up -d` **without** `--build`, so it will NOT pick up the new router code. Use the command above.
+
+Verify after deploy:
+```bash
+curl -fsS http://localhost:9000/scout/health
+curl -fsS http://localhost:9000/scout/catalog
+curl -fsS http://localhost:9443/scout/health   # proxy path
+# portal tab: http://10.1.8.69:9000/catalog/  (Scout tile)
+```
+
+## Two things to flag
+1. **Pre-staged file swept into the commit:** `docker-compose.windows.yml` was already `git add`-ed in the index before I started, so `git commit` included it alongside the Scout files. Your other unstaged working-tree changes were left untouched. Say the word if you want it split out.
+2. **Manifest source-of-truth:** the running registry reads manifests from `/home/darbot/nvidia-workbench/darbotlm/manifests` (a separate checkout), not the fschia repo. I staged the 3 Scout manifests there (uncommitted in that checkout) so the tab appears on restart. Commit them in that checkout if you keep it under version control.
+
+Want me to proceed with the rebuild + live verification when you&#x27;re ready, or hand that off entirely?</pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 14</span> <span class="ts">2026-06-09T13:59:10.040Z</span> <span class="snip">great work! Let&#x27;s create an extensive scout-swe framework, sdk, docs, runtime, tooling, ap</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>great work! Let&#x27;s create an extensive scout-swe framework, sdk, docs, runtime, tooling, apim, a2a, docusaurus, automations, etc. Create a scout-swe at github.com/dayour/scout-swe and push there, then let&#x27;s do the same for aether runtime and weave to add them and make them seperate repos as well</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>All three repos are live, verified, and pushed as **private** under github.com/dayour.
+
+## Delivered
+
+| Repo | URL | Role | Build status |
+|------|-----|------|--------------|
+| **scout-swe** | https://github.com/dayour/scout-swe | framework + SDK + A2A + APIM + docs | tsc OK, 10 tests, docs OK |
+| **aether** | https://github.com/dayour/aether | agent execution runtime | tsc OK, 13 tests, docs OK |
+| **weave** | https://github.com/dayour/weave | SWE-swarm orchestration | tsc OK, 13 tests, docs OK |
+
+Layered: **scout-swe** runs on **aether**, composed by **weave**.
+
+## Each repo contains (TypeScript npm-workspace monorepo, MIT)
+- **SDK** (`@*/sdk`) — typed Scout API client + policy render helpers
+- **A2A** (`@*/a2a`) — Agent2Agent protocol types + JSON Schemas
+- **Runtime** (`@*/runtime`) — task/session exec, A2A transport, scheduler (aether adds `SandboxExecutor`)
+- **Orchestrator** (`@weave/orchestrator`) — `SwarmGraph` DAG + `Router` (A2A/MCP/Scout)
+- **CLI** (`@*/cli`), **APIM** (OpenAPI + Azure policies incl. A2A/MCP routing), **automations**, **Docusaurus docs**, examples, tests
+- **CI/release/docs/automations** GitHub Actions workflows, dependabot
+- scout-swe also ships **Python bindings** (`scout_swe`)
+
+## Verification
+Every repo passed `npm install` → `tsc -b` → `vitest` → `docusaurus build` locally before push. I hit and fixed a real issue: Docusaurus 3.6 breaks with the latest webpack (ProgressPlugin schema) — pinned `webpack@5.95.0` via `overrides` (committed in lockfiles, so CI is reproducible).
+
+## Two notes
+- **gh active account** is now `dayour` (I switched it from `darbotlabs` to create these). Want me to switch it back?
+- Repos are **private**; their `docs.yml` Pages-deploy workflow needs GitHub Pages enabled (and Pages on private repos requires a paid plan) — CI build still validates the docs regardless.
+
+Local build roots: `C:\Users\dayour\dev\{scout-swe,aether,weave}`. Want me to wire weave&#x27;s orchestrator to call the live scout-swe SDK against your 10.1.8.69 gateway next, or set up cross-repo dependency publishing?</pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 15</span> <span class="ts">2026-06-10T14:16:34.189Z</span> <span class="snip">great, let&#x27;s also create scout-app and scout-cli and make sure scout-app has full mcp app </span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>great, let&#x27;s also create scout-app and scout-cli and make sure scout-app has full mcp app support</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>Both repos are live, verified, and pushed as **private** under github.com/dayour.
+
+## Delivered
+
+| Repo | URL | What it is | Verified |
+|------|-----|-----------|----------|
+| **scout-cli** | https://github.com/dayour/scout-cli | Standalone, zero-dependency CLI (own Scout client; table + `--json` output) | tsc build, 3 tests, `--help` runs |
+| **scout-app** | https://github.com/dayour/scout-app | **MCP application** (server + host) | tsc build, 4 tests, docs build, HTTP `/healthz` smoke |
+
+## scout-app — full MCP app support
+A TypeScript npm-workspace monorepo built on the official **`@modelcontextprotocol/sdk` (1.29)**:
+
+- **`@scout-app/mcp-server`** — exposes the Scout control plane as MCP:
+  - **9 tools**: `scout_health/info/catalog/nodes/node/policy/policy_render/dispatch/tasks`
+  - **2 resources**: `scout://catalog`, `scout://nodes`
+  - **1 prompt**: `scout-triage`
+  - **2 transports**: **stdio** (Claude Desktop / VS Code / Microsoft Scout) and **Streamable HTTP** (`/mcp` + `/healthz`)
+- **`@scout-app/mcp-host`** — the host half: connect to and aggregate *any* MCP server (filesystem, browser, GitHub, …) so Scout can compose external MCP tools
+- **`@scout-app/sdk`** — self-contained Scout client; **`@scout-app/app`** — the `scout-app` binary
+- Docusaurus docs (intro, tools, transports, host, **registering** with mcp.json snippets), CI, tests
+
+Runtime-proven: `scout-app http` served the MCP server, `/healthz` returned `{&quot;status&quot;:&quot;ok&quot;}`, and `/mcp` correctly returned `406` to a bare GET (standard Streamable-HTTP handshake requirement).
+
+## The Scout stack is now 5 private repos under dayour
+`scout-swe` (framework) → `aether` (runtime) → `weave` (orchestration), plus `scout-cli` (CLI) and `scout-app` (MCP app). Local build roots under `C:\Users\dayour\dev\`.
+
+NOTE: gh active account is still **dayour**. Want me to register scout-app as an MCP server in your local Scout/Clawpilot config (mcp.json) pointing at the 10.1.8.69 gateway, or switch gh back to darbotlabs?</pre></div>
+    </details>
+    <details class="turn"><summary><span class="tn">Turn 16</span> <span class="ts">2026-06-11T07:40:11.311Z</span> <span class="snip">make sure to create complete extensive scout-sdk</span></summary>
+      <div class="msg user"><div class="who">USER</div><pre>make sure to create complete extensive scout-sdk</pre></div>
+      <div class="msg asst"><div class="who">ASSISTANT</div><pre>**scout-sdk is live: https://github.com/dayour/scout-sdk** (private) — the canonical, comprehensive SDK.
+
+## What&#x27;s in it (verified end-to-end)
+**TypeScript (`scout-sdk`, `packages/sdk`)**
+- **`ScoutClient`** — every `/scout/*` endpoint, plus bearer auth, configurable timeout, and request/response hooks
+- **Retries** — exponential backoff + jitter (`http.ts`), retry-on `429/5xx`, no replay of successful mutations
+- **Typed errors** — `ScoutApiError` / `ScoutTimeoutError` / `ScoutNetworkError` (all extend `ScoutError`)
+- **Task/fleet helpers** — `waitForTask`, `dispatchAndWait`, `fleetSummary`
+- **A2A** types + `A2AClient`; **policy** model + `renderPolicy` (linux/windows/macos) + `parsePolicy` + `diffPolicy`
+- **Built-in mock** (`createMockFetch`) — run with no gateway
+
+**Python (`scout_sdk`, `python/`)** — sync `ScoutClient` + async `AsyncScoutClient`, pydantic models, policy helpers, `wait_for_task`/`dispatch_and_wait`/`fleet_summary`
+
+**Plus** — OpenAPI spec (`openapi/scout-api.yaml`), Docusaurus reference (client/policy/a2a/errors+retries/mock/python), runnable TS + Python examples, and CI (TS build/test/docs + Python pytest).
+
+## Verification (all green)
+- `tsc -b` clean; **15** vitest tests (client + retries + policy/A2A)
+- Docusaurus build OK
+- `pip install ./python[test]` + **6** pytest tests (incl. async)
+- 55 files committed, no node_modules/dist/egg-info
+
+## The Scout stack is now 6 private repos under dayour
+`scout-swe` · `aether` · `weave` · `scout-cli` · `scout-app` · **`scout-sdk`**
+
+NOTE: the other repos currently vendor their own Scout clients. Want me to refactor them to depend on `scout-sdk` (single source of truth), or publish `scout-sdk` to npm/PyPI? Also, gh active account is still **dayour** — say the word if you want it switched back to darbotlabs.</pre></div>
+    </details>
+    <details class="turn" style="margin-top:18px"><summary><span class="tn">Raw JSON</span> <span class="snip">embedded session export</span></summary>
+      <pre class="rawjson" id="raw"></pre>
+    </details>
+  </section>
+
+  <footer>
+    Generated Sunday, June 14, 2026. Sources: live <code>gh</code> metadata + READMEs + recursive trees for all six repos, and the DarbotLM session store.
+    Repos are PRIVATE under github.com/dayour. Scout / Clawpilot is Frontier-gated. MICROSOFT CONFIDENTIAL - INTERNAL USE.
+  </footer>
+</main>
+</div>
+<script>
+const SESSION = {"sessionId": "846367d7-e504-4081-bb3e-0175f7b46ef0", "exportedAt": "2026-06-14", "turnCount": 17, "turns": [{"turn": 0, "timestamp": "2026-06-08T01:00:12.186Z", "user": "az account list and az auth status to seee if you're logged into darbot@timelarp.com tenant for azure and entra", "assistant": "Switched. Both Azure and Entra now resolve to **darbot@timelarp.com**.\n\n| Item | Value |\n|------|-------|\n| **Active subscription** | MSFT_funded (`88dc9c38-361e-4516-9072-ae9504620c0f`) |\n| **Tenant** | `6b104499-c49f-45dc-b3a2-df95efd6eeb4` (timelarp) |\n| **Azure user** | darbot@timelarp.com |\n| **Entra signed-in user** | Darbot — darbot@timelarp.com (`c402dc81-...`) |\n\nYou're fully active on the timelarp tenant for both Azure ARM and Entra (Microsoft Graph) operations."}, {"turn": 1, "timestamp": "2026-06-08T01:50:51.617Z", "user": "Researching: microsoft documentation for \"frontier\" program and \"microsoft scout\" and analyze dayour/.copilot session data to see where we left off", "assistant": "Report saved. Here is the concise summary.\n\n**File:** `C:\\Users\\dayour\\.copilot\\session-state\\846367d7-e504-4081-bb3e-0175f7b46ef0\\research\\microsoft-documentation-for-frontier-program-and-m.md` (33 KB, 34 footnotes, 4 Mermaid diagrams)\n\n## Key findings\n\n**1. Frontier program** — Microsoft 365 Copilot's opt-in early-access tier (Frontier -> Standard -> Deferred release model). Admin-enabled in M365 admin center (Copilot > Settings > Copilot Frontier); requires an M365 Copilot license. First named Mar 25, 2025; now delivers Cowork, PowerPoint Agent Mode, Claude-in-chat, and Scout. Distinct from the \"Frontier Firm\" concept and the generic \"frontier model\" term.\n\n**2. Microsoft Scout** — Microsoft's first \"Autopilot\" agent, a **desktop app** (Win/macOS) announced **June 2, 2026 at Build 2026**. Reads/writes files, runs shell, drives a Playwright browser, queries M365 via Work IQ. **Frontier-only**, behind 3 gates: Frontier enrollment + Intune policy (`AllowScoutFrontierAccess`) + admin attestation, plus a **GitHub Copilot license**.\n\n**3. The bridge (most important):** Scout is built on the **MIT open-source `OpenClaw`** + **Work IQ**; its codename is **\"Clawpilot\"** (MDM domain `com.microsoft.clawpilot`). Your local **\"ClippyClaw\" v0.22.327** runs the *same stack* — `~/.copilot` plugin layout, a `workiq` MCP server, `agents/`+`skills/` model. Your environment is a Scout/Clawpilot-family build (high-confidence inference; ClippyClaw isn't public).\n\n**4. Where we left off** (last activity ~2026-06-08 00:55 UTC, 3 parallel sessions):\n- **Most recent:** Copilot Studio **\"Coral Schema\" API audit** — semantic-ID tagging (`cs:dv:v9:bots:get`), `coral-ui-audit.html` on `localhost:8791`; cut off mid-search on the publish endpoint group.\n- **Tileslide** Tauri slide app rendering slides via headless Edge.\n- **ClippyClaw** `cargo build --release` (new `clippyclaw_tauri.exe` launched).\n\nNOTE: Your session transcripts are AES-encrypted (`clippyclaw-sessions/*.json`); the recap was reconstructed from plaintext audit logs. Also: **M365 is disconnected** in ClippyClaw, which disables Calendar/Mail/Teams/WorkIQ — likely worth reconnecting before resuming."}, {"turn": 2, "timestamp": "2026-06-08T01:53:00.859Z", "user": "can you please check the config for cypherdyne tenant? Ask your admin to enable Microsoft Scout\nMicrosoft Scout hasn't been set up for your organization yet. Once your admin has enabled it, come back here to get started.", "assistant": null}, {"turn": 3, "timestamp": "2026-06-08T02:06:19.293Z", "user": "darbot@timelarp.com has an m365 license", "assistant": null}, {"turn": 4, "timestamp": "2026-06-08T02:06:49.850Z", "user": "https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/PolicySummaryReportBlade/policyId/9d86acf7-a2d3-422c-ad3c-2966a5578647/showReporting~/true/policyType~/71/isAssigned~/true/policyJourneyState~/7/policyName/Darbot-Scout", "assistant": null}, {"turn": 5, "timestamp": "2026-06-08T02:13:43.723Z", "user": "<skill-context name=\"darbot-browser-capture\">\nBase directory for this skill: C:\\Users\\dayour\\.copilot\\skills\\darbot-browser-capture\n\n# darbot-browser-capture\n\nCapture clean, content-only screenshots with the `darbot-browser` tools while\nbound to a real Edge profile / appdata, and emit a machine-readable step+schema\nfor every action.\n\n## Communication standard\n\nNO EMOJIS. Never use emoji characters, decorative Unicode symbols, or markdown\nemoji shortcodes in any output, file name, alt text, caption, commit, or schema\nvalue. Use plain text labels instead: `WARNING:`, `NOTE:`, `OK:`, `BLOCKED:`.\n\n## When to use (vs copilotbrowser-capture)\n\n- The session must run as a specific signed-in account/profile (appdata bound),\n  e.g. `darbot@timelarp.com` on the Cypherdyne tenant.\n- You need to preview a local `file://` HTML artifact (copilotbrowser BLOCKS\n  `file://`; darbot-browser ALLOWS it).\n- Everything else about privacy and step+schema matches copilotbrowser-capture.\n\n## Profile / appdata connect (darbot@timelarp.com, Cypherdyne)\n\n1. Use `browser_list_profiles` to enumerate the Edge profiles available in the\n   configured user-data directory.\n2. Use `browser_switch_profile` to select the profile that is already signed in\n   as `darbot@timelarp.com` (Cypherdyne tenant). This reuses the existing\n   appdata session so no interactive sign-in is needed.\n3. If saved Darbot session state exists, `browser_switch_profile` (session\n   restore) can re-open cookies/localStorage/URL for that account.\n4. Verify with `browser_snapshot` that the destination renders as the intended\n   account before capturing. Do not capture the account picker or sign-in.\n\nNOTE: Cypherdyne tenant id 6b104499-c49f-45dc-b3a2-df95efd6eeb4;\ntimelarp.com maps to cypherdyne.ai. Do NOT print the UPN, tenant name, or ids\ninto any captured image.\n\n## Privacy-conscious capture rules\n\n1. `browser_take_screenshot` captures the page render region only, not the OS\n   window frame, address bar, tab strip, or bookmarks. Prefer it over any\n   OS-level full-window grab.\n2. For a single panel, pass `element` + `ref` from a prior `browser_snapshot`\n   so the shot is cropped to that element and excludes chrome.\n3. Never capture the address bar. If a URL, tenant, UPN, or token appears in\n   page content, crop it out with an element shot or reframe first.\n4. Do not capture sign-in / account-picker screens. Capture only the\n   post-auth destination content.\n5. Keep full-page captures off unless the entire scroll height is required.\n6. Descriptive, non-sensitive file names only (`01-overview.png`).\n\n## Output location\n\ndarbot-browser writes screenshots under:\n`C:\\Users\\dayour\\AppData\\Local\\Temp\\darbot-browser-mcp-output\\<timestamp>\\`\n\nCopy the chosen images into the artifact's dedicated shots directory before\nembedding them as base64.\n\n## Standard capture loop\n\n1. `browser_list_profiles` then `browser_switch_profile` to bind the account.\n2. `browser_navigate` to the destination URL (or a `file://` local artifact).\n3. `browser_snapshot` to get refs.\n4. `browser_take_screenshot` with `element` + `ref` (preferred) or viewport.\n5. Copy from the Temp output dir into the shots directory.\n\n## Step + schema convention\n\nEach step is one JSON object; the collection is the automation spec and the\nscreenshots are the runbook.\n\n```json\n{\n  \"step\": 1,\n  \"title\": \"Bind Cypherdyne profile\",\n  \"tool\": \"browser_switch_profile\",\n  \"args\": { \"name\": \"Profile signed in as the Cypherdyne account\" },\n  \"screenshot\": null,\n  \"notes\": \"Reuses appdata session. No interactive sign-in, no credential capture.\"\n}\n```\n\n```json\n{\n  \"step\": 2,\n  \"title\": \"Preview local wiki artifact\",\n  \"tool\": \"browser_navigate\",\n  \"args\": { \"url\": \"file:///C:/Users/dayour/OneDrive%20-%20Microsoft/0core0/swe_clippyclaw_app_reg.html\" },\n  \"screenshot\": null,\n  \"notes\": \"file:// allowed in darbot-browser only.\"\n}\n```\n\n## Output checklist\n\n- [ ] Bound to the intended signed-in profile before any capture.\n- [ ] No address bar, tab strip, or window frame in any image.\n- [ ] No account UPN, tenant name, OTP, or token visible.\n- [ ] Element-scoped shots used where a single panel is the subject.\n- [ ] Images copied out of the Temp output dir into the shots directory.\n- [ ] Each step recorded as a `tool + args` JSON object.\n- [ ] No emojis in any caption, alt text, file name, or schema value.\n\n## Worked example\n\nThis skill's profile bind (darbot@timelarp.com, Cypherdyne) and `file://`\npreview support were used to build and visually verify the ClippyClaw Entra\napp-registration wiki at\n`C:\\Users\\dayour\\OneDrive - Microsoft\\0core0\\swe_clippyclaw_app_reg.html`\n(see the sibling `README.md`). The captured panels back the flip cards in that\nsingle-file artifact.\n\n</skill-context>", "assistant": null}, {"turn": 6, "timestamp": "2026-06-08T02:23:01.101Z", "user": "access granted, instructions were unclear for  that step. Pleach check intune settings now", "assistant": null}, {"turn": 7, "timestamp": "2026-06-08T02:24:00.871Z", "user": "ssh darbot@10.1.8.68 and set the value on that machine", "assistant": "Done. The registry write succeeded on **10.1.8.68** (`smax\\darbot`) and is verified.\n\n## Result\n\n| Item | Value |\n|---|---|\n| Host | `10.1.8.68` (`smax\\darbot`, via SSH key auth) |\n| Key | `HKLM\\SOFTWARE\\Policies\\Scout` |\n| Value | `AllowScoutFrontierAccess` = **REG_DWORD 0x1** |\n| Before | key absent |\n| After | verified present and = 1 |\n\nThis is exactly what the Cypherdyne \"Darbot-Scout\" ADMX policy would have written — and that policy is confirmed **Enabled** tenant-side, so the local key now matches the intended org config.\n\n## Next steps (on 10.1.8.68)\n1. **Relaunch Scout/Clawpilot** there — Scout reads this policy key at startup, so the running instance won't pick it up until restarted. The \"hasn't been set up for your organization\" waitlist screen should clear.\n2. **Sign in** with `darbot@timelarp.com` (Cypherdyne — holds the M365 Copilot license) plus the **GitHub Copilot Business/Enterprise** seat for token billing.\n\nWant me to verify Scout/Clawpilot is installed on that box and check whether it's currently running (so you know it needs a restart)?"}, {"turn": 8, "timestamp": "2026-06-08T02:25:51.979Z", "user": "you scout is also installed on windows on there, try launch and connect", "assistant": null}, {"turn": 9, "timestamp": "2026-06-08T02:25:52.127Z", "user": "It worked!", "assistant": null}, {"turn": 10, "timestamp": "2026-06-08T02:26:31.218Z", "user": "(I had to reinstall scout)", "assistant": null}, {"turn": 11, "timestamp": "2026-06-08T02:37:08.311Z", "user": "please validate it's the correct scout", "assistant": "## Validation verdict: YES — it's the correct, genuine Microsoft Scout\n\n| Criterion | Result | Evidence |\n|---|---|---|\n| **Authentic Microsoft binary** | PASS | `Microsoft Scout.exe`, Authenticode **Status: Valid**, **Signer: CN=Microsoft Corporation, O=Microsoft Corporation, Redmond** |\n| **Correct product/version** | PASS | Product \"Microsoft Scout\", **v0.22.333.0** — the current Frontier release; build dated 2026-06-02 (Scout's launch day) |\n| **Official install path** | PASS | `C:\\Users\\darbot\\AppData\\Local\\Programs\\Microsoft Scout\\` (per-user), separate from the unsigned ClippyClaw wrapper |\n| **Running** | PASS | 4 Scout processes live on interactive RDP **session 2** |\n| **Frontier gate** | PASS | `HKLM\\SOFTWARE\\Policies\\Scout\\AllowScoutFrontierAccess = 1` |\n| **GitHub Copilot identity (token billing)** | PASS | `login = dayour`, `staff = true` |\n| **M365 work account / Cypherdyne tenant** | Not readable from disk | Stored **encrypted** (`m-onedrive-state.json` etc. carry the `MSE` AES header; MSAL/WAM token cache is DPAPI-encrypted) |\n\n**Conclusion:** This is the real, Microsoft-signed Microsoft Scout (Frontier), current version, Frontier-enabled, running, with the GitHub Copilot side signed in as `dayour`. It is distinct from the unsigned ClippyClaw build also on the box.\n\nNOTE: The one item I can't read is which M365 work account Scout is signed into — and that's by design (it's encrypted at rest, which is the correct security posture). Since you confirmed it got past the \"not set up for your organization\" waitlist after reinstall, it is connected. To eyeball-confirm the tenant: open Scout's account/profile menu — it should show **darbot@timelarp.com (Cypherdyne)**, which holds the M365 Copilot license that satisfies Frontier.\n\nWant me to confirm the signed-in work account a different way (e.g., check the WAM/Office identity registry for the Cypherdyne account on that box)?"}, {"turn": 12, "timestamp": "2026-06-08T04:49:17.501Z", "user": "great! can you create a policy for scout to be deployed to linux without requiring domain management following the same pattern?", "assistant": "Done. I reverse-engineered the actual Scout 0.22.333 binary (not guesswork) and built a Linux policy that follows the exact same managed-policy pattern as Windows/macOS, with no MDM/domain join.\n\n## Deliverable\n`...\\session-state\\846367d7-...\\files\\scout-linux-policy\\`\n- **`policy.json`** — the managed policy (Frontier enabled, governance permissive)\n- **`install-scout-policy.sh`** — self-elevating installer (writes `/etc/clawpilot/policy.json`)\n- **`README.md`** — provenance, schema, both deploy options\n\n## The verified mechanism\nScout's loader resolves: `RF(win32) ?? VF(darwin) ?? HF(linux) ?? loadFromFile()`.\n\n| Platform | Source | Keys |\n|---|---|---|\n| Windows | `HKLM\\SOFTWARE\\Policies\\Scout` | PascalCase |\n| macOS | `/Library/Managed Preferences/com.microsoft.clawpilot.plist` | PascalCase |\n| **Linux** | **`/etc/clawpilot/policy.json`** | **camelCase** |\n| No-root fallback (any OS) | `<userData>/tenant-policy.json` | camelCase |\n\n**Critical correction:** Linux parses the whole file through the `NF` normalizer, which reads **camelCase** keys. The public-source inference (Chromium `/etc/opt/microsoft/scout/...` path with PascalCase `AllowScoutFrontierAccess`) is **wrong** for the real app — those keys would be silently ignored.\n\nThe policy.json:\n```json\n{ \"version\": 1, \"allowScoutFrontierAccess\": true, ... }\n```\n\n## Deploy (no domain mgmt)\n```bash\nsudo install -d -m 0755 /etc/clawpilot\nsudo install -m 0644 policy.json /etc/clawpilot/policy.json\n```\nScout reads it at launch and every ~15 min, logging `Loaded managed policy: ...` (`managed=true`). NOTE: this clears the waitlist gate only — the M365 Copilot license + GitHub Copilot seat are still required to sign in.\n\nWant me to push this to a specific Linux host in your fleet via SSH? Tell me the host and I'll deploy + verify (read-only check first)."}, {"turn": 13, "timestamp": "2026-06-08T14:25:45.681Z", "user": "ssh darbot@10.1.8.69 and add a tab the DarbotLM Portal and add it to the gateway, proxy, runtime, router for scout and let's create an extensive scout-api and scout-cli and scloud-om (for object model) as you deploy and configure", "assistant": "Scout integration is built, validated, committed, and staged for deploy on **10.1.8.69**. I did not restart or rebuild anything (per your request).\n\n## What was added (commit `84d67d3` on `main`, repo `/mnt/fschia/darbot/darbotlm`)\n\n| Surface | Delivered |\n|---|---|\n| **scloud-om** | `scloud/om.py` (Pydantic v2: ScoutNode/Agent/Policy/Session/Task/Fleet/Resource/Catalog + manifest projection + per-platform policy render) and `manifests/schemas/scout-object-model.schema.json` |\n| **scout-api** | `gateway/routers/scout.py` + `gateway/service_modules/scout.py` — **16 routes** under `/scout` (health, info, catalog, fleet, nodes, policy, policy/render, sessions, tasks, manifest, schema) |\n| **scout-cli** | `scloud/cli.py` (`python -m scloud info|nodes|catalog|policy|dispatch ...`) |\n| **gateway + router** | registered `scout.router` in `gateway/main.py` |\n| **proxy** | explicit `location /scout/` in `nginx-proxy-redirect.conf` |\n| **runtime + portal tab** | `manifests/services/ai-services/scout.json` with an adaptive-tile `view` (the tab) |\n| **agent (fleet)** | `manifests/dlmcp/agents/scout.json` (Microsoft Scout / Clawpilot fleet) |\n| packaging / node / docs | `Dockerfile` `COPY scloud`, `nodes/scout-fleet.md`, `docs/darbot-scout.md` |\n\n**Scope honored:** models both the Microsoft Scout fleet (10.1.8.68) **and** a native control plane; `/scout/catalog` aggregates all DLMCP services/agents/connectors/skills/tools.\n\n## Validation (all green)\n- Both manifests **schema-valid** against `dlm-manifest.schema.json`; all JSON lints.\n- All Python compiles; **OM renders** the Linux/Windows policy correctly.\n- Router **imports inside the running container** and registers all 16 `/scout/*` routes.\n- Fresh `ManifestRegistry()` resolves scout **service + agent + portal-tab view = present**.\n\n## Deploy (you run these — I did not restart)\nThe gateway code is baked into the image, so this needs a **rebuild**, not just a restart:\n```bash\ncd /mnt/fschia/darbot/darbotlm\ndocker compose up -d --build\n```\nNOTE: `sudo systemctl restart darbotlm` uses `compose up -d` **without** `--build`, so it will NOT pick up the new router code. Use the command above.\n\nVerify after deploy:\n```bash\ncurl -fsS http://localhost:9000/scout/health\ncurl -fsS http://localhost:9000/scout/catalog\ncurl -fsS http://localhost:9443/scout/health   # proxy path\n# portal tab: http://10.1.8.69:9000/catalog/  (Scout tile)\n```\n\n## Two things to flag\n1. **Pre-staged file swept into the commit:** `docker-compose.windows.yml` was already `git add`-ed in the index before I started, so `git commit` included it alongside the Scout files. Your other unstaged working-tree changes were left untouched. Say the word if you want it split out.\n2. **Manifest source-of-truth:** the running registry reads manifests from `/home/darbot/nvidia-workbench/darbotlm/manifests` (a separate checkout), not the fschia repo. I staged the 3 Scout manifests there (uncommitted in that checkout) so the tab appears on restart. Commit them in that checkout if you keep it under version control.\n\nWant me to proceed with the rebuild + live verification when you're ready, or hand that off entirely?"}, {"turn": 14, "timestamp": "2026-06-09T13:59:10.040Z", "user": "great work! Let's create an extensive scout-swe framework, sdk, docs, runtime, tooling, apim, a2a, docusaurus, automations, etc. Create a scout-swe at github.com/dayour/scout-swe and push there, then let's do the same for aether runtime and weave to add them and make them seperate repos as well", "assistant": "All three repos are live, verified, and pushed as **private** under github.com/dayour.\n\n## Delivered\n\n| Repo | URL | Role | Build status |\n|------|-----|------|--------------|\n| **scout-swe** | https://github.com/dayour/scout-swe | framework + SDK + A2A + APIM + docs | tsc OK, 10 tests, docs OK |\n| **aether** | https://github.com/dayour/aether | agent execution runtime | tsc OK, 13 tests, docs OK |\n| **weave** | https://github.com/dayour/weave | SWE-swarm orchestration | tsc OK, 13 tests, docs OK |\n\nLayered: **scout-swe** runs on **aether**, composed by **weave**.\n\n## Each repo contains (TypeScript npm-workspace monorepo, MIT)\n- **SDK** (`@*/sdk`) — typed Scout API client + policy render helpers\n- **A2A** (`@*/a2a`) — Agent2Agent protocol types + JSON Schemas\n- **Runtime** (`@*/runtime`) — task/session exec, A2A transport, scheduler (aether adds `SandboxExecutor`)\n- **Orchestrator** (`@weave/orchestrator`) — `SwarmGraph` DAG + `Router` (A2A/MCP/Scout)\n- **CLI** (`@*/cli`), **APIM** (OpenAPI + Azure policies incl. A2A/MCP routing), **automations**, **Docusaurus docs**, examples, tests\n- **CI/release/docs/automations** GitHub Actions workflows, dependabot\n- scout-swe also ships **Python bindings** (`scout_swe`)\n\n## Verification\nEvery repo passed `npm install` → `tsc -b` → `vitest` → `docusaurus build` locally before push. I hit and fixed a real issue: Docusaurus 3.6 breaks with the latest webpack (ProgressPlugin schema) — pinned `webpack@5.95.0` via `overrides` (committed in lockfiles, so CI is reproducible).\n\n## Two notes\n- **gh active account** is now `dayour` (I switched it from `darbotlabs` to create these). Want me to switch it back?\n- Repos are **private**; their `docs.yml` Pages-deploy workflow needs GitHub Pages enabled (and Pages on private repos requires a paid plan) — CI build still validates the docs regardless.\n\nLocal build roots: `C:\\Users\\dayour\\dev\\{scout-swe,aether,weave}`. Want me to wire weave's orchestrator to call the live scout-swe SDK against your 10.1.8.69 gateway next, or set up cross-repo dependency publishing?"}, {"turn": 15, "timestamp": "2026-06-10T14:16:34.189Z", "user": "great, let's also create scout-app and scout-cli and make sure scout-app has full mcp app support", "assistant": "Both repos are live, verified, and pushed as **private** under github.com/dayour.\n\n## Delivered\n\n| Repo | URL | What it is | Verified |\n|------|-----|-----------|----------|\n| **scout-cli** | https://github.com/dayour/scout-cli | Standalone, zero-dependency CLI (own Scout client; table + `--json` output) | tsc build, 3 tests, `--help` runs |\n| **scout-app** | https://github.com/dayour/scout-app | **MCP application** (server + host) | tsc build, 4 tests, docs build, HTTP `/healthz` smoke |\n\n## scout-app — full MCP app support\nA TypeScript npm-workspace monorepo built on the official **`@modelcontextprotocol/sdk` (1.29)**:\n\n- **`@scout-app/mcp-server`** — exposes the Scout control plane as MCP:\n  - **9 tools**: `scout_health/info/catalog/nodes/node/policy/policy_render/dispatch/tasks`\n  - **2 resources**: `scout://catalog`, `scout://nodes`\n  - **1 prompt**: `scout-triage`\n  - **2 transports**: **stdio** (Claude Desktop / VS Code / Microsoft Scout) and **Streamable HTTP** (`/mcp` + `/healthz`)\n- **`@scout-app/mcp-host`** — the host half: connect to and aggregate *any* MCP server (filesystem, browser, GitHub, …) so Scout can compose external MCP tools\n- **`@scout-app/sdk`** — self-contained Scout client; **`@scout-app/app`** — the `scout-app` binary\n- Docusaurus docs (intro, tools, transports, host, **registering** with mcp.json snippets), CI, tests\n\nRuntime-proven: `scout-app http` served the MCP server, `/healthz` returned `{\"status\":\"ok\"}`, and `/mcp` correctly returned `406` to a bare GET (standard Streamable-HTTP handshake requirement).\n\n## The Scout stack is now 5 private repos under dayour\n`scout-swe` (framework) → `aether` (runtime) → `weave` (orchestration), plus `scout-cli` (CLI) and `scout-app` (MCP app). Local build roots under `C:\\Users\\dayour\\dev\\`.\n\nNOTE: gh active account is still **dayour**. Want me to register scout-app as an MCP server in your local Scout/Clawpilot config (mcp.json) pointing at the 10.1.8.69 gateway, or switch gh back to darbotlabs?"}, {"turn": 16, "timestamp": "2026-06-11T07:40:11.311Z", "user": "make sure to create complete extensive scout-sdk", "assistant": "**scout-sdk is live: https://github.com/dayour/scout-sdk** (private) — the canonical, comprehensive SDK.\n\n## What's in it (verified end-to-end)\n**TypeScript (`scout-sdk`, `packages/sdk`)**\n- **`ScoutClient`** — every `/scout/*` endpoint, plus bearer auth, configurable timeout, and request/response hooks\n- **Retries** — exponential backoff + jitter (`http.ts`), retry-on `429/5xx`, no replay of successful mutations\n- **Typed errors** — `ScoutApiError` / `ScoutTimeoutError` / `ScoutNetworkError` (all extend `ScoutError`)\n- **Task/fleet helpers** — `waitForTask`, `dispatchAndWait`, `fleetSummary`\n- **A2A** types + `A2AClient`; **policy** model + `renderPolicy` (linux/windows/macos) + `parsePolicy` + `diffPolicy`\n- **Built-in mock** (`createMockFetch`) — run with no gateway\n\n**Python (`scout_sdk`, `python/`)** — sync `ScoutClient` + async `AsyncScoutClient`, pydantic models, policy helpers, `wait_for_task`/`dispatch_and_wait`/`fleet_summary`\n\n**Plus** — OpenAPI spec (`openapi/scout-api.yaml`), Docusaurus reference (client/policy/a2a/errors+retries/mock/python), runnable TS + Python examples, and CI (TS build/test/docs + Python pytest).\n\n## Verification (all green)\n- `tsc -b` clean; **15** vitest tests (client + retries + policy/A2A)\n- Docusaurus build OK\n- `pip install ./python[test]` + **6** pytest tests (incl. async)\n- 55 files committed, no node_modules/dist/egg-info\n\n## The Scout stack is now 6 private repos under dayour\n`scout-swe` · `aether` · `weave` · `scout-cli` · `scout-app` · **`scout-sdk`**\n\nNOTE: the other repos currently vendor their own Scout clients. Want me to refactor them to depend on `scout-sdk` (single source of truth), or publish `scout-sdk` to npm/PyPI? Also, gh active account is still **dayour** — say the word if you want it switched back to darbotlabs."}]};
+document.getElementById('raw').textContent = JSON.stringify(SESSION, null, 2);
+function copyJson(){navigator.clipboard.writeText(JSON.stringify(SESSION,null,2));}
+function dl(){const b=new Blob([JSON.stringify(SESSION,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='scout-session-history.json';a.click();}
+let open=false;
+function toggleAll(){open=!open;document.querySelectorAll('details.turn').forEach(d=>d.open=open);}
+mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{
+  primaryColor:'#10131f',primaryBorderColor:'#39B0FF',primaryTextColor:'#e8ecf6',
+  lineColor:'#5a6a93',fontFamily:'Segoe UI'}});
+</script>
+</body></html>
