@@ -14,7 +14,8 @@
   "license": "MIT",
   "private": true,
   "bin": {
-    "scout-deployer": "./bin/scout-deployer.js"
+    "scout-deployer":  "./bin/scout-deployer.js",
+    "scout-skills":    "./bin/skills-server.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -22,6 +23,7 @@
   "os": ["win32"],
   "files": [
     "bin/scout-deployer.js",
+    "bin/skills-server.js",
     "ScoutDeployer.ps1",
     "ScoutDeployer.cmd",
     "connectors/",
@@ -31,9 +33,11 @@
     "README.md"
   ],
   "scripts": {
-    "start":   "node bin/scout-deployer.js",
-    "lint":    "node --check bin/scout-deployer.js",
-    "syntax":  "powershell -NoProfile -Command \"$e=$null;$null=[System.Management.Automation.Language.Parser]::ParseFile('ScoutDeployer.ps1',[ref]$null,[ref]$e);if($e.Count -eq 0){'SYNTAX OK'}else{$e|%{$_.Message}}\""
+    "start":          "node bin/scout-deployer.js",
+    "skills-server":  "node bin/skills-server.js",
+    "lint":           "node --check bin/scout-deployer.js && node --check bin/skills-server.js",
+    "syntax":         "powershell -NoProfile -Command \"$e=$null;$null=[System.Management.Automation.Language.Parser]::ParseFile('ScoutDeployer.ps1',[ref]$null,[ref]$e);if($e.Count -eq 0){'SYNTAX OK'}else{$e|%{$_.Message}}\"",
+    "test:mcp":       "node -e \"const {spawnSync}=require('child_process');const r=spawnSync('node',['bin/skills-server.js'],{input:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/list',params:{}})+`\\n`,encoding:'utf8'});console.log(r.stdout)\""
   },
   "config": {
     "tenantId":    "6b104499-c49f-45dc-b3a2-df95efd6eeb4",

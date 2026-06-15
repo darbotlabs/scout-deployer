@@ -1,0 +1,138 @@
+{
+  "name": "scout-skills",
+  "version": "1.0.0",
+  "description": "Copilot m-skills exposed as MCP tools: inverse-debate-theory, intentional-words, cowork-auth-config, cowork-chat, cowork-cli-install, 3dkg, persistent-powershell.",
+  "publisher": "cypherdyne",
+  "server": {
+    "type": "stdio",
+    "mcp_config": {
+      "command": "node",
+      "args": ["E:\\scout-deployer\\bin\\skills-server.js"],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "inverse_debate_theory",
+      "description": "Run a problem through inverse-debate-theory: four independent parallel agent sessions (GPT-5.5 agree, GPT-5.5 disagree, Opus 4.8 agree, Opus 4.8 disagree), four collaborative rounds, and Near/Far/Long synthesis.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "problem": {
+            "type": "string",
+            "description": "The problem, decision, claim, strategy, design, or assumption to debate."
+          },
+          "rounds": {
+            "type": "integer",
+            "description": "Number of collaborative rounds (default: 4).",
+            "default": 4,
+            "minimum": 1,
+            "maximum": 8
+          }
+        },
+        "required": ["problem"]
+      }
+    },
+    {
+      "name": "intentional_words",
+      "description": "Calculate and refine wording by launching multiple independent runtime agents in parallel, each challenging the words from a unique perspective, then collaborating through subloops and Near/Far/Long horizon synthesis.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The wording, message, or text to refine and stress-test."
+          },
+          "context": {
+            "type": "string",
+            "description": "Optional background context about the audience, relationship, or stakes."
+          },
+          "goal": {
+            "type": "string",
+            "description": "What the text needs to accomplish (inform, persuade, reassure, escalate, etc.)."
+          }
+        },
+        "required": ["text"]
+      }
+    },
+    {
+      "name": "cowork_auth_config",
+      "description": "Manage Cowork CLI authentication and configuration: cowork auth login/check/status/whoami/refresh/logout and cowork config init/show/set.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "The cowork auth or config sub-command to run.",
+            "enum": [
+              "auth login", "auth check", "auth status", "auth whoami",
+              "auth refresh", "auth logout",
+              "config init", "config show", "config set"
+            ]
+          },
+          "key": { "type": "string", "description": "Config key (required for config set)." },
+          "value": { "type": "string", "description": "Config value (required for config set)." }
+        },
+        "required": ["command"]
+      }
+    },
+    {
+      "name": "cowork_chat",
+      "description": "Launch and manage the interactive cowork chat REPL in a persistent PowerShell session for streaming multi-turn chat.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "description": "Initial message to send to the cowork chat REPL." },
+          "island":  { "type": "string", "description": "Cowork island/environment name (--island flag)." },
+          "model":   { "type": "string", "description": "Model override (--model flag)." },
+          "resume":  { "type": "boolean", "description": "Resume the latest conversation.", "default": false }
+        },
+        "required": ["message"]
+      }
+    },
+    {
+      "name": "cowork_cli_install",
+      "description": "Install cowork-cli natively on Windows via the aka.ms PowerShell installer and wire it into a reusable persistent PowerShell session.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "force":       { "type": "boolean", "description": "Force reinstall even if cowork is already on PATH.", "default": false },
+          "verify_only": { "type": "boolean", "description": "Only check if cowork-cli is installed and return its version.", "default": false }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "query_3dkg",
+      "description": "Query and work with the 3DKG knowledge graph, txt2kg APIs, DarbotDB (ArangoDB), and QMD MCP memory surface on 10.1.8.69.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query":    { "type": "string", "description": "Natural language or AQL/SPARQL query against the knowledge graph." },
+          "endpoint": {
+            "type": "string",
+            "description": "Target endpoint.",
+            "enum": ["txt2kg", "darbotdb", "qmd-mcp", "triples-api"],
+            "default": "txt2kg"
+          },
+          "raw": { "type": "boolean", "description": "Return raw API response rather than summarised result.", "default": false }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "persistent_powershell",
+      "description": "Create and manage long-lived PowerShell work sessions for parallel command execution, coding agents, service probes, and reusable terminal workflows.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action":   { "type": "string", "enum": ["create", "run", "read", "stop", "list"], "default": "create" },
+          "shell_id": { "type": "string", "description": "Identifier for the persistent shell session." },
+          "command":  { "type": "string", "description": "PowerShell command to execute (for run action)." },
+          "detach":   { "type": "boolean", "description": "Run detached so the process survives session shutdown.", "default": false }
+        },
+        "required": ["action"]
+      }
+    }
+  ]
+}
