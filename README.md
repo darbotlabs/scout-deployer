@@ -4,17 +4,6 @@ Deploy Microsoft Scout 0.22.333 to Windows cluster nodes in the Cypherdyne tenan
 and provision skills, connectors, MCP tools, permissions, memory, extensions,
 session history, and automations — all over SSH via PuTTY.
 
-## Tenant
-
-| Field          | Value                                    |
-|----------------|------------------------------------------|
-| Tenant name    | Cypherdyne (timelarp.com)                |
-| Tenant ID      | 6b104499-c49f-45dc-b3a2-df95efd6eeb4     |
-| Domain         | cypherdyne.ai / timelarp.com             |
-| Licensed user  | darbot@timelarp.com (M365 Copilot)       |
-| App reg        | cb08267c-55a2-4f0d-9c5a-58d90444b82d     |
-| Scout version  | 0.22.333                                 |
-
 ## Fleet nodes
 
 | Node        | IP          | Status                      |
