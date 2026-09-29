@@ -1,0 +1,13 @@
+All Rights Reserved - Research Availability Notice
+
+Copyright (c) CypherDyne AI and DarbotLabs contributors.
+
+DarbotLabs is a subsidiary of CypherDyne AI. This repository is made publicly viewable as independent personal research and development learning material.
+
+Unless a separate license file in this repository expressly grants rights, no license is granted to copy, distribute, sublicense, sell, host, or use this repository as a product, service, distribution channel, or production dependency.
+
+The repository may contain experiments, prototypes, notes, generated assets, third-party components, or references to upstream open source frameworks. Third-party and upstream materials remain governed by their own license terms.
+
+This notice does not reduce or replace any license obligations that apply to upstream projects, vendored dependencies, generated artifacts, or other third-party materials.
+
+Security, privacy, compliance, operational fitness, and production suitability are not warranted and remain the responsibility of anyone who evaluates, forks, adapts, or consumes this material.
